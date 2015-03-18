@@ -1,0 +1,21 @@
+
+features ...
+> add rate of change to rooms in log
+> priorities: one room won't be active until other gets to a target
+> syncTempBias: bias setting towards avg of all temps
+> only thaw cold to rooms with cool or fan?  just not bleed to guest?
+> Only have one temp setting and always show it?
+> Add "all" to room buttons or just "all off" or "all off but guest"?
+> show damper and sys changes in one line in log
+> time-based operations
+> turn on 2nd room (kitchen) when 1st has cooled down
+> narrow hysteresis when second room running
+> mini-remote should go to min of existing setting or 1 degree colder
+
+bugs ...
+> bad log lines when acLine near 0
+> bad handling of net cksum error
+> thermostat app refuses to change setting
+> thermostat app can't handle server reboot
+> double-click changes browser window
+> cool mode with all open happened

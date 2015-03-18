@@ -1,0 +1,10 @@
+lib/**
+node_modules/**
+.idea/**
+www/lib/**
+.live-archive/**
+.git/**
+mydb/**
+reports/**
+*.log
+data/**
