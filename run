@@ -1,0 +1,7 @@
+# kill $(pgrep -f /root/hvac/lib/hvac)
+set -e
+cd /root/hvac
+rsync -a /root/Dropbox/hvac ~
+coffee -co lib src/*.coffee
+coffee -co lib www/*.coffee
+node /root/hvac/lib/hvac

@@ -4,14 +4,14 @@
 
 console.log process.cwd()  #  C:\insteon
 console.log __dirname  	  #  C:\insteon\lib
-process.chdir '/apps/insteon'
+process.chdir '/root/hvac'
 
 http      	= require 'http'
 Primus      = require 'primus'
 url       	= require 'url'
 _           = require 'underscore'
 nodeStatic  = require 'node-static'
-fileServer 	= new nodeStatic.Server '/apps/insteon', cache: 0
+fileServer 	= new nodeStatic.Server '/root/hvac', cache: 0
 getStats 	  = require './get_stats'
 ctrl   	  	= require './control'
 html        = require './index-html'
@@ -29,7 +29,13 @@ srvr = http.createServer (req, res) ->
 
 	if req.url is '/ceil'
 		res.writeHead 200, "Content-Type": "text/html"
-		res.end ceilHtml()
+		res.end ceil-html()
+		console.log 'req:', req.url
+		return
+
+	if req.url is '/bath'
+		res.writeHead 200, "Content-Type": "text/html"
+		res.end bath-html()
 		console.log 'req:', req.url
 		return
 
@@ -74,9 +80,9 @@ primus.save 'lib/primus.js'
 
 primus.on 'connection', (spark) ->
 	console.log 'ws connection from ', spark.address
-	
+
 	spark.on 'data', (args) ->
-	  console.log 'ws data', args 
+	  console.log 'ws data', args
 	  sub = (subscriptions[args.clientType] ?= {callbacks:[]})
 	  sub.spark = spark
 	  if args.data then for cb in sub.callbacks
@@ -86,9 +92,8 @@ exports.wsRecv = (clientType, cb) ->
 	# console.log 'ws recv', clientType
 	sub = subscriptions[clientType] ?= callbacks: []
 	sub.callbacks.push cb
-	
+
 exports.wsSend = (clientType, data) ->
 	# console.log 'ws send', clientType, data
 	if (sub = subscriptions[clientType]) and (spark = sub.spark)
 		spark.write data
-	

@@ -1,0 +1,4 @@
+set -e
+cd /root/hvac
+rsync -a /root/Dropbox/hvac ~
+coffee test-sl.coffee
