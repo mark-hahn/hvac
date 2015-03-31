@@ -70,7 +70,7 @@ getWxData = (cb) ->
       cb? res
       db.close()
 
-do sendCeilBath = ->
+do sendCeil = ->
 	date = new Date()
 	hrs  = date.getHours()
 	mins = '' + date.getMinutes()
@@ -79,20 +79,22 @@ do sendCeilBath = ->
 	if mins.length < 2 then mins = '0' + mins
 	time = hrs + ':' + mins
 	if getStats.glblStats?.master?.avgTemp
-		masterStats = getStats.glblStats['master']
-		master      = masterStats.avgTemp?.toFixed(1) or '----'
-		mstrSetting = masterStats.coolSetting or '---'
+		masterStat = getStats.glblStats['master']
+		mstrSetting = switch masterStat.mode
+			when 'heat' then masterStat.heatSetting.toFixed(1)
+			when 'cool' then masterStat.coolSetting.toFixed(1)
+			else '----'
+		master = masterStat.avgTemp?.toFixed(1) or '----'
 		getWxData (data) ->
-			outside = data.outTemp
+			outside = Math.round +data.outTemp
 			humidity = data.humidity
-			console.log 'wxData', data
+			# console.log 'wxData', data
 			srvr.wsSend 'ceil', {master, mstrSetting, time, outside, humidity}
-			srvr.wsSend 'bath', {time, outside, humidity}
 
 	if timeout then clearTimeout timeout
 	timeout = setTimeout ->
 		timeout = null
-		sendCeilBath()
+		sendCeil()
 	, 5000
 
 
@@ -153,7 +155,7 @@ serial.port.on 'message', (data) ->
 		# 	when 'C1' then ceilRoomIdx--; if ceilRoomIdx < 0 then ceilRoomIdx += 4
 		# 	when 'D1' then ceilRoomIdx++; if ceilRoomIdx > 3 then ceilRoomIdx -= 4
 
-		sendCeilBath()
+		sendCeil()
 
 	else
 

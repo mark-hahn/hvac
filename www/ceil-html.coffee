@@ -29,6 +29,6 @@ module.exports = ->
            div style:'display:inline-block; float:right; font-size:250px', ->
               div '#outside', style:'position:relative; top:30px'
 
-				script src: 'http://code.jquery.com/jquery-1.11.2.min.js'
-				script src: 'lib/primus.js'
-				script src: 'lib/primus-script.js'
+				script src: 'js/jquery-1.11.2.min.js'
+				script src: 'js/primus.js'
+				script src: 'lib/ceil-script.js'

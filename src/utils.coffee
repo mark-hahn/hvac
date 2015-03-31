@@ -7,11 +7,11 @@ fs     = require 'fs'
 util   = require 'util'
 moment = require 'moment'
 ctrl   = null
-utils = exports
+utils  = exports
 
 utils.maxRetries    =     3
 utils.nakRetry      =  1000
-utils.IMtimeout 	=  4000
+utils.IMtimeout    	=  4000
 utils.deviceTimeout =  4000
 utils.statTimeout 	= 13000
 
@@ -71,7 +71,7 @@ utils.dbg = (module, lines = 1) ->
 
 		console.log newline + time, module, args..., endLine
 
-		fs.appendFile 'c:\\apps\\insteon\\data\\hvac.log', time + ' ' + module + ' ' +
+		fs.appendFile 'data/hvac.log', time + ' ' + module + ' ' +
 			util.inspect(args).replace(/[\[\]',\n]/g, ' ') + '\n'
 
 utils.dbg2 = (module) -> utils.dbg module, 2

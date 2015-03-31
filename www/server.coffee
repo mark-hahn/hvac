@@ -4,18 +4,18 @@
 
 console.log process.cwd()  #  C:\insteon
 console.log __dirname  	  #  C:\insteon\lib
-process.chdir '/root/hvac'
+process.chdir '/root/apps/hvac'
 
 http      	= require 'http'
 Primus      = require 'primus'
 url       	= require 'url'
 _           = require 'underscore'
 nodeStatic  = require 'node-static'
-fileServer 	= new nodeStatic.Server '/root/hvac', cache: 0
+fileServer 	= new nodeStatic.Server '/root/apps/hvac', cache: 0
 getStats 	  = require './get_stats'
 ctrl   	  	= require './control'
 html        = require './index-html'
-ceilHtml    = require './ceilHtml'
+ceilHtml    = require './ceil-html'
 
 # reqSeq = 0
 
@@ -29,13 +29,7 @@ srvr = http.createServer (req, res) ->
 
 	if req.url is '/ceil'
 		res.writeHead 200, "Content-Type": "text/html"
-		res.end ceil-html()
-		console.log 'req:', req.url
-		return
-
-	if req.url is '/bath'
-		res.writeHead 200, "Content-Type": "text/html"
-		res.end bath-html()
+		res.end ceilHtml()
 		console.log 'req:', req.url
 		return
 
@@ -76,7 +70,7 @@ console.log 'Listening on port', 1339
 subscriptions = {}
 
 primus = new Primus srvr, iknowhttpsisbetter: yes
-primus.save 'lib/primus.js'
+primus.save 'js/primus.js'
 
 primus.on 'connection', (spark) ->
 	console.log 'ws connection from ', spark.address

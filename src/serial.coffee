@@ -10,8 +10,8 @@ portName = '/dev/ttyUSB1'
 portXBee = '/dev/ttyUSB2'
 
 getStats = require './get_stats'
-utils   = require './utils'
-cmd     = require './commands'
+utils    = require './utils'
+cmd      = require './commands'
 
 dbg  = utils.dbg 'serial'
 

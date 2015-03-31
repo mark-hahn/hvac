@@ -141,14 +141,14 @@ showCrlState = ->
 
 	ctrl.logSeq += 1
 
-	ctrl.logDb.insert {
-		type:    'state'
-		time:    now
-		seq:     ctrl.logSeq
-		elapsed: now - lastTime
-		sysMode: ctrl.sysMode
-		dampersOn, hvacMode
-	}
+	# ctrl.logDb.insert {
+	# 	type:    'state'
+	# 	time:    now
+	# 	seq:     ctrl.logSeq
+	# 	elapsed: now - lastTime
+	# 	sysMode: ctrl.sysMode
+	# 	dampersOn, hvacMode
+	# }
 
 	lastTime = now
 

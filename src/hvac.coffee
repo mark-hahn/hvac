@@ -6,13 +6,12 @@
 ###
 
 process.setMaxListeners 100
-require('source-map-support').install handleUncaughtExceptions: false
 
 require './server'
 
 #console.log process.cwd()  #  C:\insteon
 #console.log __dirname  	#  C:\insteon\lib
-process.chdir '/root/hvac'
+process.chdir '/root/apps/hvac'
 
 utils   = require './utils'
 getStat = require './get_stats'

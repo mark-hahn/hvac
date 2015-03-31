@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "primus": "*",
+    "underscore": "*",
+    "node-static": "*",
+    "moment": "*",
+    "serialport": "*",
+    "sqlite3":"*",
+    "teacup": "*",
+    "ws":"*",
+    "cron":"*"
+  }
+}

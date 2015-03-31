@@ -72,6 +72,6 @@ module.exports = ->
 						div '#heat.bot', mode:'heat', style: "float:left; width:24%;", 'Heat'
 						div '#cool.bot', mode:'cool', style: "float:left; width:24%;", 'Cool'
 
-				script src: 'lib/jquery-1.11.2.min.js'
+				script src: 'js/jquery-1.11.2.min.js'
 				script src: 'lib/ajax-stats.js'
 				script src: 'lib/events.js'

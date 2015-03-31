@@ -5,7 +5,7 @@
 
 fs		 = require 'fs'
 _        = require 'underscore'
-Logger   = require 'nedb-logger'
+# Logger   = require 'nedb-logger'
 
 hvac     = require './hvac'
 getStats = require './get_stats'
@@ -20,7 +20,7 @@ dbg2     = utils.dbg2 'ctrl'
 
 ctrl = exports
 ctrl.sysMode = 'off'
-ctrl.logDb = logDb = new Logger filename: 'logDb'
+# ctrl.logDb = logDb = new Logger filename: 'logDb'
 ctrl.logSeq = Date.now()
 lastHvacMode  = hamperDelayTO = hamperAboutToDelay = lastSecs = null
 pwsData = {}
@@ -46,12 +46,12 @@ lowIntExtTempDiff	= 3
 highIntExtTempDiff = 6
 
 logMelt = (action) ->
-	ctrl.logSeq += 1
-	ctrl.logDb.insert
-		type:    'melt'
-		time:    Date.now()
-		seq:     ctrl.logSeq
-		action:	 action
+	# ctrl.logSeq += 1
+	# ctrl.logDb.insert
+	# 	type:    'melt'
+	# 	time:    Date.now()
+	# 	seq:     ctrl.logSeq
+	# 	action:	 action
 
 setInterval () ->
 	now = Date.now()
@@ -148,43 +148,43 @@ ctrl.update = (cb) ->
 			continue
 
 		# for ceil display
-		if room is 'tvRoom' and
-			 getStats.glblStats.tvRoom?.avgTemp and
-			 getStats.glblStats.kitchen?.avgTemp and
-			 getStats.glblStats.master?.avgTemp and
-			 getStats.glblStats.guest?.avgTemp
-
-			mstrStat = getStats.glblStats.master
-			mstrSetting = switch mstrStat.mode
-				when 'heat' then mstrStat.heatSetting.toFixed(1)
-				when 'cool' then mstrStat.coolSetting.toFixed(1)
-				else '----'
-
-			try
-				fs.writeFileSync '/root/hvac/data/inside-temps.txt',
-					getStats.glblStats.tvRoom.avgTemp.toFixed(1)  + ',' +
-					getStats.glblStats.kitchen.avgTemp.toFixed(1) + ',' +
-					getStats.glblStats.master.avgTemp.toFixed(1)  + ',' +
-					getStats.glblStats.guest.avgTemp.toFixed(1)   + ',' +
-					mstrSetting + ',' +
-					Math.round(fs.readFileSync('/root/hvac/data/outside-wx.txt', 'utf8').split(' ')[2])
-			catch e
+		# if room is 'tvRoom' and
+		# 	 getStats.glblStats.tvRoom?.avgTemp and
+		# 	 getStats.glblStats.kitchen?.avgTemp and
+		# 	 getStats.glblStats.master?.avgTemp and
+		# 	 getStats.glblStats.guest?.avgTemp
+		# 
+		# 	mstrStat = getStats.glblStats.master
+		# 	mstrSetting = switch mstrStat.mode
+		# 		when 'heat' then mstrStat.heatSetting.toFixed(1)
+		# 		when 'cool' then mstrStat.coolSetting.toFixed(1)
+		# 		else '----'
+		# 
+		# 	try
+		# 		fs.writeFileSync '/root/apps/hvac/data/inside-temps.txt',
+		# 			getStats.glblStats.tvRoom.avgTemp.toFixed(1)  + ',' +
+		# 			getStats.glblStats.kitchen.avgTemp.toFixed(1) + ',' +
+		# 			getStats.glblStats.master.avgTemp.toFixed(1)  + ',' +
+		# 			getStats.glblStats.guest.avgTemp.toFixed(1)   + ',' +
+		# 			mstrSetting + ',' +
+		# 			Math.round(fs.readFileSync('/root/apps/hvac/data/outside-wx.txt', 'utf8').split(' ')[2])
+		# 	catch e
 
 		# for plotting
-		date = new Date()
-		secs = date.getSeconds()
-		if Math.floor(secs/30) isnt lastSecs and
-				getStats.glblStats.master?.avgTemp and
-				getStats.glblStats.acLine?.avgTemp and
-				getStats.glblStats.tvRoom?.avgTemp and
-				getStats.glblStats.kitchen?.avgTemp and
-				getStats.glblStats.guest?.avgTemp
-			lastSecs = Math.floor(secs/30)
-
-			runStates = ''
-			for room2 in cmd.rooms()
-				runStates += (if getStats.glblStats[room2].active  then ',1' else ',0')
-
+		# date = new Date()
+		# secs = date.getSeconds()
+		# if Math.floor(secs/30) isnt lastSecs and
+		# 		getStats.glblStats.master?.avgTemp and
+		# 		getStats.glblStats.acLine?.avgTemp and
+		# 		getStats.glblStats.tvRoom?.avgTemp and
+		# 		getStats.glblStats.kitchen?.avgTemp and
+		# 		getStats.glblStats.guest?.avgTemp
+		# 	lastSecs = Math.floor(secs/30)
+		# 
+		# 	runStates = ''
+		# 	for room2 in cmd.rooms()
+		# 		runStates += (if getStats.glblStats[room2].active  then ',1' else ',0')
+		# 
 			# fs.appendFileSync 'data/house-temp-history.csv',
 			# 				(Math.floor(Date.now()/30000) - 46719359) + ',' +
 			# 				getStats.glblStats.acLine.avgTemp.toFixed(3) + ',' +
