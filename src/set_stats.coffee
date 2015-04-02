@@ -88,7 +88,6 @@ do sendCeil = ->
 		getWxData (data) ->
 			outside = Math.round +data.outTemp
 			humidity = data.humidity
-			# console.log 'wxData', data
 			srvr.wsSend 'ceil', {master, mstrSetting, time, outside, humidity}
 
 	if timeout then clearTimeout timeout

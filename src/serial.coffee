@@ -6,9 +6,6 @@ showSendData = no
 showRecvData = no
 showXbeeData = no
 
-portName = '/dev/ttyUSB1'
-portXBee = '/dev/ttyUSB2'
-
 getStats = require './get_stats'
 utils    = require './utils'
 cmd      = require './commands'
@@ -81,7 +78,7 @@ parser = ->
 			emitter.emit 'message', msg
 		messages = []
 
-serial.port = new SerialPort portName,
+serial.port = new SerialPort '/dev/insteon',
     baudrate: 19200,
     databits: 8,
     stopbits: 1,
@@ -96,7 +93,7 @@ serial.port.on 'error', (err) ->
 #xBeeParser = (emitter, buffer) ->
 #	console.log 'xBeeParser', emitter, buffer
 
-XBeePort = new SerialPort portXBee,
+XBeePort = new SerialPort '/dev/xbee',
     baudrate: 9600,
     databits: 8,
     stopbits: 1,
@@ -152,8 +149,6 @@ getFrameLen = (index) ->
 	else 0
 
 assembleFrame = (data) ->
-	# dbg 'assembleFrame data', data
-
 	for i in [0...data.length] then frameBuf.push data[i]
 
 	loop
@@ -181,3 +176,11 @@ XBeePort.on 'open', ->
 
 XBeePort.on 'error', (err) ->
 	console.log 'ERROR from xBee port', err
+
+
+###
+contents of /etc/udev/rules.d/99-home-serial-usb.rules
+SUBSYSTEMS=="usb-serial", DRIVERS=="cp210x", ATTRS{port_number}=="0", SYMLINK+="davis"
+SUBSYSTEMS=="usb", ATTRS{serial}=="A6028N89", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="insteon"
+SUBSYSTEMS=="usb", ATTRS{serial}=="A5025MT6", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="xbee"
+###
