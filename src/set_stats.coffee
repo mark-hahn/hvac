@@ -12,7 +12,7 @@ hvac    = require './hvac'
 utils   = require './utils'
 ctrl    = require './control'
 cmd     = require './commands'
-serial  = require './serial'
+# serial  = require './serial'
 getStats = require './get_stats'
 srvr     = require './server'
 
@@ -22,12 +22,12 @@ dbg  = utils.dbg  'set'
 
 setStat = exports
 
-miniRemotes =
-	'270b8a': 'tvroom1'
-	'270b00': 'tvroom2'
-	'27178d': 'master'
-
-srvrAddr = utils.hexStr2arr '2413fd'
+# miniRemotes =
+# 	'270b8a': 'tvroom1'
+# 	'270b00': 'tvroom2'
+# 	'27178d': 'master'
+# 
+# srvrAddr = utils.hexStr2arr '2413fd'
 
 decClk =
 	rgtClk: 	  0x11
@@ -58,7 +58,7 @@ timeout = null
 
 sqlite3 = require("sqlite3").verbose()
 
-getWxData = (cb) ->
+setStat.getWxData = getWxData = (cb) ->
   db = new sqlite3.Database '/var/lib/weewx/weewx.sdb', sqlite3.OPEN_READONLY, (err) ->
     if err then console.log 'Error opening weewx db', err; cb? err; return
     db.get 'SELECT outTemp FROM archive ORDER BY  dateTime DESC LIMIT 1', (err, res) ->
@@ -97,72 +97,72 @@ do sendCeil = ->
 	, 5000
 
 
-serial.port.on 'message', (data) ->
-
-#	if showAllmsgs then	dbg 'got message', utils.arr2hexStr data, yes
-
-	if data.length isnt 11 or data[0] isnt 0x02 or data[1] isnt 0x50 then return
-
-	p1 = data[9];  p2 = data[10]
-
-	if p1 is 6 and p2 is 0 then p1 = data[5]; p2 = data[7]
-	else if data[5] isnt srvrAddr[0] or
-			    data[6] isnt srvrAddr[1] or
-			    data[7] isnt srvrAddr[2]
-		return
-
-	# console.log 'received p1 p2 data', p1, p2, '\n', utils.arr2hexStr(data, yes), '\n', data
-
-	clk = switch p1*100 + p2
-		when 1702 then 'A1'
-		when 1802 then 'A2'
-		when 1701 then 'B1'
-		when 1801 then 'B2'
-
-		when 1704 then 'C1'
-		when 1804 then 'C2'
-		when 1703 then 'D1'
-		when 1803 then 'D2'
-
-		when 1706 then 'E1'
-		when 1806 then 'E2'
-		when 1705 then 'F1'
-		when 1805 then 'F2'
-
-		when 1708 then 'lftClk'
-		when 1808 then 'lftDblClk'
-		when 1707 then 'rgtClk'
-		when 1807 then 'rgtDblClk'
-		else null
-
-	up = (clk in ['rgtClk', 'rgtDblClk'])
-
-	if not clk then return
-
-	remote = miniRemotes[_.map(data[2..4], (i) -> utils.dec2hex(i)).join '']
-	if not remote then return
-
-	room = (if remote is 'master' then 'master' else 'tvRoom')
-
-	dbg 'accepted', clk, 'remote:' , remote, ', up:', up
-
-	if room is 'master' and p2 < 7
-
-		# switch clk
-		# 	when 'A1' then ceilRoom = [(cmd.idxByRoom[ceilRoom] + 1) % 4]
-		# 	when 'B1' then ceilRoomIdx++; if ceilRoomIdx > 3 then ceilRoomIdx -= 4
-		# 	when 'C1' then ceilRoomIdx--; if ceilRoomIdx < 0 then ceilRoomIdx += 4
-		# 	when 'D1' then ceilRoomIdx++; if ceilRoomIdx > 3 then ceilRoomIdx -= 4
-
-		sendCeil()
-
-	else
-
-		if clk in ['lftDblClk', 'rgtDblClk']
-			setStat.set ['tvRoom', 'kitchen', 'master'], 'off'
-			return
-
-		if getStats.glblStats[room].avgTemp
-			ctrl.autoSet room, up
-
-  ###
+# serial.port.on 'message', (data) ->
+# 
+# #	if showAllmsgs then	dbg 'got message', utils.arr2hexStr data, yes
+# 
+# 	if data.length isnt 11 or data[0] isnt 0x02 or data[1] isnt 0x50 then return
+# 
+# 	p1 = data[9];  p2 = data[10]
+# 
+# 	if p1 is 6 and p2 is 0 then p1 = data[5]; p2 = data[7]
+# 	else if data[5] isnt srvrAddr[0] or
+# 			    data[6] isnt srvrAddr[1] or
+# 			    data[7] isnt srvrAddr[2]
+# 		return
+# 
+# 	# console.log 'received p1 p2 data', p1, p2, '\n', utils.arr2hexStr(data, yes), '\n', data
+# 
+# 	clk = switch p1*100 + p2
+# 		when 1702 then 'A1'
+# 		when 1802 then 'A2'
+# 		when 1701 then 'B1'
+# 		when 1801 then 'B2'
+# 
+# 		when 1704 then 'C1'
+# 		when 1804 then 'C2'
+# 		when 1703 then 'D1'
+# 		when 1803 then 'D2'
+# 
+# 		when 1706 then 'E1'
+# 		when 1806 then 'E2'
+# 		when 1705 then 'F1'
+# 		when 1805 then 'F2'
+# 
+# 		when 1708 then 'lftClk'
+# 		when 1808 then 'lftDblClk'
+# 		when 1707 then 'rgtClk'
+# 		when 1807 then 'rgtDblClk'
+# 		else null
+# 
+# 	up = (clk in ['rgtClk', 'rgtDblClk'])
+# 
+# 	if not clk then return
+# 
+# 	remote = miniRemotes[_.map(data[2..4], (i) -> utils.dec2hex(i)).join '']
+# 	if not remote then return
+# 
+# 	room = (if remote is 'master' then 'master' else 'tvRoom')
+# 
+# 	dbg 'accepted', clk, 'remote:' , remote, ', up:', up
+# 
+# 	if room is 'master' and p2 < 7
+# 
+# 		# switch clk
+# 		# 	when 'A1' then ceilRoom = [(cmd.idxByRoom[ceilRoom] + 1) % 4]
+# 		# 	when 'B1' then ceilRoomIdx++; if ceilRoomIdx > 3 then ceilRoomIdx -= 4
+# 		# 	when 'C1' then ceilRoomIdx--; if ceilRoomIdx < 0 then ceilRoomIdx += 4
+# 		# 	when 'D1' then ceilRoomIdx++; if ceilRoomIdx > 3 then ceilRoomIdx -= 4
+# 
+# 		sendCeil()
+# 
+# 	else
+# 
+# 		if clk in ['lftDblClk', 'rgtDblClk']
+# 			setStat.set ['tvRoom', 'kitchen', 'master'], 'off'
+# 			return
+# 
+# 		if getStats.glblStats[room].avgTemp
+# 			ctrl.autoSet room, up
+# 
+#   ###

@@ -1,7 +1,8 @@
+rsync -a /root/Dropbox/apps/hvac ~/apps
 kill $(pgrep -f /root/apps/hvac/lib/hvac) >/dev/null
 set -e
 cd /root/apps/hvac
-rsync -a /root/Dropbox/apps/hvac ~/apps
 coffee -co lib src/*.coffee
 coffee -co lib www/*.coffee
-node /root/apps/hvac/lib/hvac
+nohup node /root/apps/hvac/lib/hvac &
+

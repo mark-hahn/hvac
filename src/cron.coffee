@@ -3,7 +3,7 @@
 ###
 
 cronJob = require('cron').CronJob
-_      = require 'underscore'
+_       = require 'underscore'
 
 hvac    = require './hvac'
 setStat = require './set_stats'

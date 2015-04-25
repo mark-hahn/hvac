@@ -16,7 +16,7 @@ process.chdir '/root/apps/hvac'
 utils   = require './utils'
 getStat = require './get_stats'
 setStat = require './set_stats'
-sched   = require './schedule'
+sched   = require './cron'
 ctrl    = require './control'
 #www    = require './www'
 

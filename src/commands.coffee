@@ -51,7 +51,7 @@ toExtended = (hex, byt3 = 0) ->
 
 cmd.address = address =
 	relay:
-		hvac:		'28AB42'
+		hvac:		  '28AB42'
 		dampers:	'28AB8F'
 
 cmd.rooms = -> ['tvRoom', 'kitchen', 'master', 'guest']

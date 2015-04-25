@@ -9,6 +9,7 @@ _        = require 'underscore'
 
 hvac     = require './hvac'
 getStats = require './get_stats'
+setStats = require './set_stats'
 cmd      = require './commands'
 serial   = require './serial'
 utils    = require './utils'
@@ -23,10 +24,10 @@ ctrl.sysMode = 'off'
 # ctrl.logDb = logDb = new Logger filename: 'logDb'
 ctrl.logSeq = Date.now()
 lastHvacMode  = hamperDelayTO = hamperAboutToDelay = lastSecs = null
-pwsData = {}
 lastLogStr = null
 lastAc = lastAcOff = blankLineMins = 0
 extIntake = acOn = startAcMelt = melting = allDampersOn = no
+outTemp = 75
 
 tempHistory =
 	tvRoom:	 []
@@ -73,6 +74,9 @@ setInterval () ->
 		dbg2 'AC Melting Started'
 		logMelt 'start'
 		ctrl.update()
+		
+	setStats.getWxData (data) ->
+		outTemp = Math.round +data.outTemp
 , 1000
 
 ctrl.setSysMode = (mode) -> ctrl.sysMode = mode
@@ -147,29 +151,6 @@ ctrl.update = (cb) ->
 			logRooms.push room[0].toUpperCase() + '                  '
 			continue
 
-		# for ceil display
-		# if room is 'tvRoom' and
-		# 	 getStats.glblStats.tvRoom?.avgTemp and
-		# 	 getStats.glblStats.kitchen?.avgTemp and
-		# 	 getStats.glblStats.master?.avgTemp and
-		# 	 getStats.glblStats.guest?.avgTemp
-		# 
-		# 	mstrStat = getStats.glblStats.master
-		# 	mstrSetting = switch mstrStat.mode
-		# 		when 'heat' then mstrStat.heatSetting.toFixed(1)
-		# 		when 'cool' then mstrStat.coolSetting.toFixed(1)
-		# 		else '----'
-		# 
-		# 	try
-		# 		fs.writeFileSync '/root/apps/hvac/data/inside-temps.txt',
-		# 			getStats.glblStats.tvRoom.avgTemp.toFixed(1)  + ',' +
-		# 			getStats.glblStats.kitchen.avgTemp.toFixed(1) + ',' +
-		# 			getStats.glblStats.master.avgTemp.toFixed(1)  + ',' +
-		# 			getStats.glblStats.guest.avgTemp.toFixed(1)   + ',' +
-		# 			mstrSetting + ',' +
-		# 			Math.round(fs.readFileSync('/root/apps/hvac/data/outside-wx.txt', 'utf8').split(' ')[2])
-		# 	catch e
-
 		# for plotting
 		# date = new Date()
 		# secs = date.getSeconds()
@@ -224,13 +205,11 @@ ctrl.update = (cb) ->
 
 		if room is 'acLine'
 			atmp = stat.avgTemp
-			# if (neg = (atmp < 0)) then atmp *= -1
-			# tempStr = (if neg then '-' else '') + Math.floor atmp
-			# while tempStr.length < 2 then tempStr = ' ' + tempStr
-			# pwsData = fs.readFileSync('/Cumulus/realtime.txt', 'utf8').split ' '
-			# logRooms.push tempStr + ' ' +
-			# 							Math.round(getStats.glblStats.intake.avgTemp) + '-' +
-			# 							Math.round(pwsData[2])
+			if (neg = (atmp < 0)) then atmp *= -1
+			tempStr = (if neg then '-' else '') + Math.floor atmp
+			while tempStr.length < 2 then tempStr = ' ' + tempStr
+			logRooms.push tempStr + ' ' +
+					Math.round(getStats.glblStats.intake.avgTemp) + '-' + outTemp
 
 		else logRooms.push room[0].toUpperCase() + ':' +
 				(stat.mode?[0] ? '-').toUpperCase() +
@@ -280,27 +259,20 @@ ctrl.update = (cb) ->
 		dbg2 hdr + logStr
 		lastLogStr = logStr
 
-#		pwsData = fs.readFileSync('/Cumulus/realtime.txt', 'utf8').split ' '
-#		pws =
-#			temp: 		+pwsData[2]
-#			hum: 		+pwsData[3]
-#			avgWind: 	+pwsData[5]
-#			gust: 		+pwsData[40]
-#
-#		ctrl.logSeq += 1
-#
-#		dbData =
-#			type:    'stats'
-#			time:    Date.now()
-#			seq:	 ctrl.logSeq
-#			sysMode: ctrl.sysMode
-#			pws: 	 pws
-#		intakeTempC = getStats.glblStats.intake.avgTemp
-#		dbData.intake = temp: (if intakeTempC then intakeTempC * (9/5) + 32)
-#
-#		_.extend dbData, getStats.glblStats
-#		dbData.acLine = temp: dbData.acLine.temp, avgTemp: dbData.acLine.avgTemp
-#		logDb.insert dbData
+		ctrl.logSeq += 1
+
+		# dbData =
+		# 	type:      'stats'
+		# 	time:      Date.now()
+		# 	seq:	     ctrl.logSeq
+		# 	sysMode:   ctrl.sysMode
+		# 	outTemp: 	 outTemp
+		# intakeTempC = getStats.glblStats.intake.avgTemp
+		# dbData.intake = temp: (if intakeTempC then intakeTempC * (9/5) + 32)
+		# 
+		# _.extend dbData, getStats.glblStats
+		# dbData.acLine = temp: dbData.acLine.temp, avgTemp: dbData.acLine.avgTemp
+		# logDb.insert dbData
 
 	if room is 'acLine' then cb?(); return
 
@@ -322,7 +294,7 @@ ctrl.update = (cb) ->
 		startAcMelt = no
 		hvacMode = 'fan'
 
-	tempDiff = getStats.glblStats.intake.avgTemp - pwsData[2]
+	tempDiff = getStats.glblStats.intake.avgTemp - outTemp
 	if ctrl.sysMode is 'heat' or
 		          extIntake and (tempDiff < lowIntExtTempDiff)
 		extIntake = off
