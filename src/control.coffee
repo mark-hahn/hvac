@@ -1,6 +1,6 @@
 ###
     C:\apps\insteon\control.coffee
-    v11
+    v12
 ###
 
 fs		 = require 'fs'
@@ -13,7 +13,6 @@ setStats = require './set_stats'
 cmd      = require './commands'
 serial   = require './serial'
 utils    = require './utils'
-send     = require './send'
 srvr     = require './server'
 
 dbg    	 = utils.dbg  'ctrl'
@@ -39,9 +38,9 @@ tempHistory =
 
 ############ settings ###########
 
-hysteresis    		= 0.5
+hysteresis    		= 0.25
 acFreezeTemp  		= -5
-minAcOffMins  		= 5
+minAcOffMins  		= 4
 acFanOffDelay 		= 10
 lowIntExtTempDiff	= 3
 highIntExtTempDiff = 6
@@ -77,25 +76,25 @@ setInterval () ->
 		
 	setStats.getWxData (data) ->
 		outTemp = Math.round +data.outTemp
-, 1000
+, 500
 
 ctrl.setSysMode = (mode) -> ctrl.sysMode = mode
 
-ctrl.autoSet = (room, up) ->
-	dbg 'autoSet', room, up
-	now = Date.now()
-	stat = getStats.glblStats[room]
-
-	switch (stat.mode = ctrl.sysMode)
-		when 'heat' then stat.heatSetting = stat.avgTemp + (if up then 1.5 else -1  )
-		when 'cool' then stat.coolSetting = stat.avgTemp + (if up then 1   else -1.5)
-
-	if room is 'tvRoom' and ctrl.sysMode is 'cool'
-		statK             = getStats.glblStats.kitchen
-		statK.mode 	  	  = stat.mode
-		statK.coolSetting = stat.coolSetting
-
-	ctrl.update()
+# ctrl.autoSet = (room, up) ->
+# 	dbg 'autoSet', room, up
+# 	now = Date.now()
+# 	stat = getStats.glblStats[room]
+# 
+# 	switch (stat.mode = ctrl.sysMode)
+# 		when 'heat' then stat.heatSetting = stat.avgTemp + (if up then 1.5 else -1  )
+# 		when 'cool' then stat.coolSetting = stat.avgTemp + (if up then 1   else -1.5)
+# 
+# 	if room is 'tvRoom' and ctrl.sysMode is 'cool'
+# 		statK             = getStats.glblStats.kitchen
+# 		statK.mode 	  	  = stat.mode
+# 		statK.coolSetting = stat.coolSetting
+# 
+# 	ctrl.update()
 
 acDelaying = -> Date.now() < lastAcOff + minAcOffMins * 60000
 
@@ -114,7 +113,9 @@ ctrl.update = (cb) ->
 
 	now = Date.now()
 
-	if hvac.appState isnt 'running' then cb?(); return
+	if hvac.appState isnt 'running' 
+		# dbg ' ctrl.update hvac.appState not running', hvac.appState
+		cb?(); return
 
 	fanCount = heatCount = coolCount = 0
 	for room of cmd.roomMask
@@ -130,7 +131,7 @@ ctrl.update = (cb) ->
 	if ctrl.sysMode is 'off'
 			lastAc = 0
 
-#	dbg {sysMode: ctrl.sysMode, heatCount, coolCount}
+	# dbg {sysMode: ctrl.sysMode, heatCount, coolCount}
 
 	stats = getStats.glblStats
 
@@ -148,7 +149,7 @@ ctrl.update = (cb) ->
 		roomWasCooling = stat.cooling
 
 		if not stat.temp?
-			logRooms.push room[0].toUpperCase() + '                  '
+			logRooms.push room[0].toUpperCase() + '                          '
 			continue
 
 		# for plotting
@@ -182,7 +183,7 @@ ctrl.update = (cb) ->
 					(if stat.cooling then -1 else +1) * hysteresis
 			else 0
 
-#		console.log 'threshold', threshold, stat
+		# console.log 'threshold', threshold, stat
 
 		stat.fanning = stat.heating = stat.cooling = no
 
@@ -214,9 +215,9 @@ ctrl.update = (cb) ->
 		else logRooms.push room[0].toUpperCase() + ':' +
 				(stat.mode?[0] ? '-').toUpperCase() +
 				(if stat.active then getHvacState() else '-') + ' ' +
-				stat.avgTemp.toFixed(1) + ' ' +
-				if threshold is 0 then '--.-'
-				else threshold.toFixed(1)
+				stat.avgTemp.toFixed(2) + ' ' +
+				if threshold is 0 then '--.--'
+				else threshold.toFixed(2)
 
 #		dbData[room] = stat
 
@@ -281,12 +282,16 @@ ctrl.update = (cb) ->
 
 	if (lastAc or ctrl.sysMode is 'cool') and hvacMode isnt 'cool'
 		dampers = 15
+		anyFanReq = no
 		for room2 in cmd.rooms()
+			if stats[room2].mode is 'fan'
+			  anyFanReq = yes
 			if stats[room2].mode in ['fan', 'cool']
 				dampers &= ~parseInt cmd.roomMask[room2], 16
 		if dampers is 15 then dampers = 0
 		# hvacMode = (if melting then 'fan' else 'off')
-		hvacMode = 'fan'
+		if anyFanReq or lastAc
+			hvacMode = 'fan'
 
 	# if allDampersOn then dampers = 0
 
@@ -304,7 +309,7 @@ ctrl.update = (cb) ->
 	for room2 in cmd.rooms()
 		isOn = ((dampers & parseInt(cmd.roomMask[room2], 16)) is 0)
 		getStats.glblStats[room2].active = isOn
-
+		
 	cmd.dampersCmd dampers, (err) ->
 		if err
 			dbg 'dampersCmd err', err
@@ -315,6 +320,6 @@ ctrl.update = (cb) ->
 
 		# cmd.hvacModeCmd hvacMode, false, cb
 		cmd.hvacModeCmd hvacMode, extIntake, cb
-
+		
 		if acOn and hvacMode isnt 'cool' then lastAcOff = now
 		acOn = (hvacMode is 'cool')

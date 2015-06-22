@@ -14,7 +14,6 @@ _  = require 'underscore'
 
 hvac   = require './hvac'
 ctrl   = require './control'
-send   = require './send'
 cmd    = require './commands'
 serial = require './serial'
 utils  = require './utils'
@@ -32,11 +31,13 @@ getStats.glblStats = glblStats =
 	acLine:		{}
 	intake:		{}
 
-calibrationOffset = kitchen: -3.5
+calibrationOffset = 
+	tvRoom:  0
+	kitchen: -3.5
 
 setVal = (room, key, val) ->
 	changed = (glblStats[room][key] isnt val)
-#	dbg 'setVal', room, key, val, (if changed then '' else '(no chg)')
+	# dbg 'setVal', room, key, val, (if changed then '' else '(no chg)')
 	if not changed then return
 	glblStats[room][key] = val
 	ctrl.update()

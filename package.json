@@ -9,6 +9,7 @@
     "teacup": "*",
     "ws":"*",
     "cron":"*",
-    "home-controller": "*"
+    "home-controller": "*",
+    "request":"*"
   }
 }

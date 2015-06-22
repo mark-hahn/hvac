@@ -1,4 +1,6 @@
-rsync -a /root/Dropbox/apps/hvac ~/apps
+#   -*-  grammar-ext: sh  -*-
+
+rsync -av /root/dev/apps/hvac/ /root/apps/hvac
 kill $(pgrep -f /root/apps/hvac/lib/hvac) >/dev/null
 set -e
 cd /root/apps/hvac

@@ -4,9 +4,10 @@
 
 _ = require 'underscore'
 
+request  = require 'request'
+
 hvac     = require './hvac'
 utils    = require './utils'
-send     = require './send'
 ctrl     = require './control'
 getStats = require './get_stats'
 setStat  = require './set_stats'
@@ -18,6 +19,9 @@ cmd = exports
 
 cmd.getVersion = [0x02, 0x60]
 cmd.setIMflag  = [0x02, 0x6b, 0x40]
+
+statUrlPfx = 'http://192.168.1.103:1342/io/set/28AB42/'
+dampUrlPfx = 'http://192.168.1.103:1342/io/set/28AB8f/'
 
 arr2hex = (arr) ->
 	hex = ''
@@ -154,25 +158,26 @@ showCrlState = ->
 
 
 cmd.hvacModeCmd = (mode, ext = no, cb) ->
-#	dbg 'hvacModeCmd', mode, ext
+	# dbg 'hvacModeCmd', mode, ext
 
 	if ext then switch mode
 		when 'heat' then mode = 'heatExt'
 		when 'cool' then mode = 'coolExt'
 		when 'fan'  then mode = 'fanExt'
 
-#	dbg 'hvacModeCmd w ext', mode, ext
+	# dbg 'hvacModeCmd mode ext', mode, ext
 
 	if hvacMask[mode] is ctrlState.hvac then cb?(); return
-
-	send.sendToDevice hex2arr(cmdPfx + address.relay.hvac + flags.normal +
-			relayOp.set + hvacMask[mode].toString(16)), (err) ->
+	
+	# console.log 'commands req', statUrlPfx + utils.dec2hex(hvacMask[mode])
+	request statUrlPfx + utils.dec2hex(hvacMask[mode]), (err, res) ->
+		# console.log 'commands res', {err, res}
 		if err
 			dbg 'hvacModeCmd err', err
 			cb? err
 			return
 		ctrlState.hvac = hvacMask[mode]
-#		dbg 'ctrlState.hvac', ctrlState.hvac, mode, hvacMask[mode]
+		# dbg 'ctrlState.hvac', ctrlState.hvac, mode, hvacMask[mode]
 		if hvac.appState in ['running', 'testing'] then showCrlState()
 		cb?()
 
@@ -181,8 +186,7 @@ cmd.dampersCmd = (dampers, cb, force = no) ->
 
 	if not force and dampers is ctrlState.dampers then cb?(); return
 
-	send.sendToDevice hex2arr(cmdPfx + address.relay.dampers + flags.normal +
-			relayOp.set + utils.dec2hex dampers), (err) ->
+	request dampUrlPfx + utils.dec2hex(dampers), (err, res) ->
 		if err
 			dbg 'dampersCmd err', err
 			cb? err
@@ -243,3 +247,8 @@ do cmd.allCtrlOff = ->
 			hvac.appState = 'running'
 		, yes
 	, yes
+
+setTimeout ->
+	hvac.appState = 'clearing relays'
+	dbg 'connected'
+, 3000

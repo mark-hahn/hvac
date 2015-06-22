@@ -1,3 +1,0 @@
-set -e
-cd /root/apps/hvac
-rsync -a /root/Dropbox/apps/hvac ~/apps
