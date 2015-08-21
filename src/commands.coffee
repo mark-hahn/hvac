@@ -20,8 +20,13 @@ cmd = exports
 cmd.getVersion = [0x02, 0x60]
 cmd.setIMflag  = [0x02, 0x6b, 0x40]
 
-statUrlPfx = 'http://192.168.1.103:1342/io/set/28AB42/'
-dampUrlPfx = 'http://192.168.1.103:1342/io/set/28AB8f/'
+cmd.address = address =
+	relay:
+		hvac:		  '387EFD'
+		dampers:	'387B9E'
+
+statUrlPfx = "http://192.168.1.103:1342/io/set/#{address.relay.hvac}/"
+dampUrlPfx = "http://192.168.1.103:1342/io/set/#{address.relay.dampers}/"
 
 arr2hex = (arr) ->
 	hex = ''
@@ -52,11 +57,6 @@ toExtended = (hex, byt3 = 0) ->
 	arr.push -sum & 0xff
 #	dbg 'toExtended', {hex, byt3}, arr2hex arr
 	arr
-
-cmd.address = address =
-	relay:
-		hvac:		  '28AB42'
-		dampers:	'28AB8F'
 
 cmd.rooms = -> ['tvRoom', 'kitchen', 'master', 'guest']
 cmd.idxByRoom =
@@ -169,7 +169,6 @@ cmd.hvacModeCmd = (mode, ext = no, cb) ->
 
 	if hvacMask[mode] is ctrlState.hvac then cb?(); return
 	
-	# console.log 'commands req', statUrlPfx + utils.dec2hex(hvacMask[mode])
 	request statUrlPfx + utils.dec2hex(hvacMask[mode]), (err, res) ->
 		# console.log 'commands res', {err, res}
 		if err

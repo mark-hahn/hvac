@@ -2,13 +2,20 @@
     C:\apps\insteon\get_stats.coffee
 ###
 
+# velux tech support 800-888-3589 until 4 pm pst   Ext. 6
+# KLF 100 -- one required for each of blinds and openers
+
+# truth marvel hardware
+# marvin - colbe - caredco - 
+# 
+
 showStatMsgs    = yes
 logAllRooms     = no
 logRoomReqs     = no
 logRowReqs      = no
 logXbeeReqs     = no
 showStatTraffic = no
-showRetries		= no
+showRetries		  = no
 
 _  = require 'underscore'
 
@@ -32,8 +39,9 @@ getStats.glblStats = glblStats =
 	intake:		{}
 
 calibrationOffset = 
-	tvRoom:  0
-	kitchen: -3.5
+	# tvRoom:  1.5
+	# kitchen: -3.5
+	kitchen: 0
 
 setVal = (room, key, val) ->
 	changed = (glblStats[room][key] isnt val)
