@@ -41,7 +41,7 @@ tempHistory =
 hysteresis    		= 0.25
 acFreezeTemp  		= -5
 minAcOffMins  		= 4
-acFanOffDelay 		= 10
+acFanOffDelay 		= 0 # 10
 lowIntExtTempDiff	= 3
 highIntExtTempDiff = 6
 
