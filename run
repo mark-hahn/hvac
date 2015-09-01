@@ -1,10 +1,13 @@
 #   -*-  grammar-ext: sh  -*-
 
+echo "killing all hvac(1&2) apps"
+kill $(pgrep -f "hvac") 2> /dev/null
+  
 rsync -av /root/dev/apps/hvac/ /root/apps/hvac
-kill $(pgrep -f /root/apps/hvac/lib/hvac) >/dev/null
+echo "" > /root/apps/hvac/nohup.out
+tail -fn 0 /root/apps/hvac/nohup.out &
 set -e
 cd /root/apps/hvac
 coffee -co lib src/*.coffee
 coffee -co lib www/*.coffee
 nohup node /root/apps/hvac/lib/hvac &
-

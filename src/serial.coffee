@@ -59,7 +59,7 @@ newTemp = (data) ->
 		temp  = volts * 100
 		serial.xBeeCb? room, temp
     
-		console.log 'got xbee', {room, temp}
+		# console.log 'got xbee', {room, temp}
 
 frameBuf = []
 
@@ -72,7 +72,7 @@ getFrameLen = (index) ->
 	else 0
 
 assembleFrame = (data) ->
-	console.log 'assembleFrame', utils.arr2hexStr data, yes
+	# console.log 'assembleFrame', utils.arr2hexStr data, yes
 	for i in [0...data.length] then frameBuf.push data[i]
 
 	loop

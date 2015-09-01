@@ -39,9 +39,9 @@ tempHistory =
 ############ settings ###########
 
 hysteresis    		= 0.25
-acFreezeTemp  		= -5
-minAcOffMins  		= 4
-acFanOffDelay 		= 0 # 10
+acFreezeTemp  		= -6
+minAcOffMins  		= 4.1
+acFanOffDelay 		= 4 # 10
 lowIntExtTempDiff	= 3
 highIntExtTempDiff = 6
 
